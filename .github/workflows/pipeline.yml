@@ -1,0 +1,45 @@
+name: DevOps Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+
+  # JOB 1 — Run tests
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+  # JOB 2 — Build Docker image (only if tests pass)
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build Docker image
+        run: docker build -t devops-demo:${{ github.sha }} .
+
+      - name: Verify container runs
+        run: |
+          docker run -d -p 3000:3000 --name demo devops-demo:${{ github.sha }}
+          sleep 3
+          curl http://localhost:3000/health
+          docker stop demo
