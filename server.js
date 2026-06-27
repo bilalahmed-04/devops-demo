@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 
 app.get('/', (req, res) => {
-  res.json({ message: 'DevOps demo working', version: '1.0' });
+res.json({ message: 'WRONG MESSAGE', version: '1.0' });
 });
 
 app.get('/health', (req, res) => {
